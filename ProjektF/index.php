@@ -57,6 +57,7 @@ Ninja Forum M13 Home
 <li type="square"><span class="text"><a href="login.php">Login</a></span></li>
 <li type="square"><span class="text"><a href="logout.php">Logut</a></span></li>
 <li type="square"><span class="text"><a href="profile.php">Dein Profil</a></span></li>
+<li type="square"><span class="text"><a href="view.php">Meine Beitraege</a></span></li>
 </ul>
 
 <!--||| Ende Menüpunkte, hier ist Platz für weitere Links oder Grafiken, die aber nicht breiter als 130 Pixel sein dürfen. |||-->
@@ -71,7 +72,7 @@ Ninja Forum M13 Home
 <br>
 <p align="justify">
 
-<!--||| Hier Überschrift und gewünschten Text einfügen. |||-->
+<!--1.Ueberschrift / 1.Text Hauptteil-->
 <span class="lesen">{<b>|==|M13 ITZ09 Ninja-Forum==></b>} Herzlich Willkommen auf M13 ITZ09 Ninja-Forum. 
 <!--||| Ende Text |||--></span>
 

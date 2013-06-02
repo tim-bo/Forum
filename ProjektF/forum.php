@@ -20,7 +20,7 @@ scroller = function() {
   text.concat(text).substring( this.pos, this.pos + width );
   if( this.pos++ >= text.length ) this.pos -= text.length;
   window.setTimeout( "scroller()", 100 );
-}
+};
 
 window.onload = scroller;
 </script>
@@ -70,7 +70,7 @@ window.onload = scroller;
 				<br>
 
 			<p align="justify">
-			<!--||| Hier ‹berschrift und gew¸nschten Text einf¸gen. |||-->
+			<!--1.Ueberschrift / 1.Text Hauptteil-->
 			<span class="lesen">{<b>Ninja-Forum</b>} Hier das Ninja-Forum! Viel Spaﬂ!
 			<!--||| Ende Text |||--></span></p>
 			

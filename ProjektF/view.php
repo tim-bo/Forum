@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
-<title>Ninja Forum Menue1</title>
+<title>Ninja Forum -Deine Beitraege-</title>
 <link rel="stylesheet" href="styles.css" type="text/css">
 <meta name="description"     content="Hier beschreiben Sie mit ein, zwei Sätzen den Inhalt dieser Datei.">
 <!-- Zeitstempel Beispiel: 31.12.2001, 08:00 Uhr, +1 Std. zu Greenwich -->
@@ -38,7 +38,7 @@ window.onload = scroller;
 				<br>
 				<span class="head">
 				<!--||| Namen der Homepage, Ruecksprung to Index |||-->
-				<a href="index.php">home</a> &middot; Forum
+				<a href="index.php">home</a> &middot; Deine Beitraege
 				</span>
 				</td>
 				</tr>
@@ -70,22 +70,20 @@ window.onload = scroller;
 				<br>
 
 			<p align="justify">
-			<!--||| Hier Überschrift und gewünschten Text einfügen. |||-->
-			<span class="lesen">{<b>Ninja-Forum</b>} Hier das Ninja-Forum! Viel Spaß!
+			<!--1.Ueberschrift / 1.Text Hauptteil-->
+			<span class="lesen">{<b>Ninja-Forum -Deine Beitraege-</b>} Hier siehst du alle deine Beitraege die du im Ninja-Forum erstellt hast. 
 			<!--||| Ende Text |||--></span></p>
-			
+		<!-- START Div1 -->	
 		<div align="center">
-		<!-- ######################################################################## -->
-			
+					
 	<?php
-	# Initialisiert die Session - session_start() gibt true or false zurück
+	# Initialisiert die Session
 	session_start();
 
-	if(!isset($_SESSION["Benutzername"])) 
-		{
+	if(!isset($_SESSION["Benutzername"]))	{
 		echo "Please login <a href=\"login.html\">first...</a>";
-		}
-		
+	}
+	
 	if(isset($_SESSION["Benutzername"]) )
 		{
 	?>
@@ -102,7 +100,6 @@ window.onload = scroller;
 
 		?>
 
-
 		<!-- #Menue darstellen -->
 		<hr><!--Trennlinie setzen-->            
 			<table align="center" border="0" cellspacing="0" cellpadding="0" width="100%" >
@@ -115,21 +112,7 @@ window.onload = scroller;
 				</tr>
 			</table>
 		<hr><!--Trennlinie setzen-->
-		<hr>
 
-
-<!--Erstellenskript zur Erzeugung des Views auf der Datenbank
-
-Create VIEW view_beitrag
-	AS SELECT
-	Thema,Titel,Benutzername,Text
-	FROM
-	TblBeitrag b
-	JOIN TblThread t on t.idThread = b.TblThread_idThread
-	JOIN TblBereich br on br.idBereich = t.TblBereich_idBereich
-	JOIN TblPerson p on p.idPerson = b.Person_idPerson
-	JOIN TblZugangsdaten zg on zg.idZugangsdaten = p.TblZugangsdaten_idZugangsdaten
-	-->
 
 <?php
 
@@ -173,7 +156,7 @@ Create VIEW view_beitrag
 
 	<p align="justify">
 	<!--||| Hier Überschrift und gewünschten Text einfügen. |||-->
-	<span class="lesen">{<b>Hinweis!!</b>} Das Forum befindet sich noch im Aufbau und bietet noch nicht alle Funktionalitäten. Wir erledigen das sobald der Tag mehr als 24h hat! :-)
+	<span class="lesen">{<b>Hinweis!!</b>} Das Forum befindet sich noch im Aufbau und bietet noch nicht alle Funktionen. Wir erledigen das sobald der Tag mehr als 24h hat! :-)
 	<!--||| Ende Text |||--></span>
 	</p>
 	<br>

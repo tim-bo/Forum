@@ -59,6 +59,7 @@ window.onload = scroller;
 <li type="square"><span class="text"><a href="login.html">Login</a></span></li>
 <li type="square"><span class="text"><a href="logout.php">Logout</a></span></li>
 <li type="square"><span class="text"><a href="profile.php">Dein Profil</a></span></li>
+<li type="square"><span class="text"><a href="view.php">Meine Beitraege</a></span></li>
 
 <!--||| Ende Menüpunkte, hier ist Platz für weitere Links oder Grafiken, die aber nicht breiter als 130 Pixel sein dürfen. |||-->
 </ul>
@@ -74,24 +75,26 @@ window.onload = scroller;
 
 <p align="justify">
 <!--1.Ueberschrift / 1.Text Hauptteil-->
-<span class="lesen">{<b>Ninja-Forum -Dein Profil-</b>} Hier kannst du alle Informationen sehen die wir ueber Dich gespeichert haben. Dein Passwort kannst du Dir aus Sicherheitsgruenden hier nicht anzeigen lassen!
+<span class="lesen">{<b>Ninja-Forum -Dein Profil-</b>} Hier kannst du alle Informationen sehen die wir ueber Dich gespeichert haben und diese aendern.
+Dein Passwort kannst du Dir aus Sicherheitsgruenden nicht anzeigen lassen, es aber jederzeit aendern!
 <!--||| Ende Text |||--></span>
 </p>
 
 
 <div align="center">
 <!-- ######################################################################## -->
-<?php# Connect to database
+<?php# Connect to database mit PDO | _GET pid fuer Login-Pruefung
+# Initialisiert die Session - session_start() gibt true or false zurück
+
 #include ("dbpdo.php");
 
-
-####################################################
-if (!isset($_GET['pid'])) $_GET['pid'] = '';
 ?>
+
 <?php
-# Initialisiert die Session - session_start() gibt true or false zurück
 session_start();
-# If Session Nicht gesetzt
+# declare st
+if (!isset($_GET['pid'])) $_GET['pid'] = '';
+if (!isset($_POST['profile'])) $_POST['profile']='';
 if(!isset($_SESSION["Benutzername"])) 
 	{
 	echo "Please login <a href=\"login.html\">first...</a>";
@@ -102,12 +105,94 @@ if(isset($_SESSION["Benutzername"]) )
 	?>
 	<table align="center" border="0" cellspacing="0" cellpadding="0" width="100%">
     <tr>
-      <td><?php echo "Hallo <strong>".$_SESSION["Benutzername"]."</strong>, du bekommst alle Daten die wir ueber Dich gespeichert haben angezeigt"; ?></td>
-	  <br>
-	  <td><?php echo "Deine UserID ist die <strong>".$_SESSION["userid"]."</strong>, "; ?></td>
+	<br>
 	  
+	<?php
+	
+	try {   
+    $dbserver   = 'localhost';
+    $dbusername = 'forumuser';
+    $dbpassword = '123456Hh';
+    $dbname     = 'fknforumdb';
+    
+	$pdoDB = new PDO('mysql:host='.$dbserver.';dbname='.$dbname.'', $dbusername, $dbpassword);
+	$pdoDB -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    } 
+	
+	catch (PDOException $e) {
+	print "Error!: " . $e->getMessage() . "<br/>";
+	die();
+	}
+	
+	
+
+   $idZugangsdaten = $_SESSION['userid'];
+   $query_1='SELECT Vorname, Nachname
+			 FROM TblPerson
+			 WHERE TblZugangsdaten_idZugangsdaten LIKE "'.$idZugangsdaten.'"';
+   $query_2='SELECT Benutzername, Passwort 
+			 FROM TblZugangsdaten
+			 WHERE TblZugangsdaten.idZugangsdaten LIKE "'.$idZugangsdaten.'"';
+			 
+      
+		foreach ($pdoDB->query($query_1)->fetchAll() as $ninja_row)	{
+		#print $ninja_row['Vorname'] . "\t";
+		#print $ninja_row['Nachname'] . "\n";
+		}
+		#array 2 variable
+		$vorname = $ninja_row["Vorname"];
+		$nachname = $ninja_row["Nachname"];
+		
+		#debug
+		#echo ".$vorname";
+		#echo $nachname;
+		
+		###foreach( $pdoDB->query($query_2) as $ninja_row2 )	{
+		###print "Benutzername & ID: " .$ninja_row2[1] .'<br><br>';
+		###}
+		foreach ($pdoDB->query($query_2)->fetchAll() as $ninja_row2)	{
+		#echo "Hallo ";
+		#print $ninja_row2['Benutzername'] . "\t";
+		#echo ", hier das Ergebnis der Abfrage";
+		}
+		$benutzername = $ninja_row2["Benutzername"];
+		$passwort = $ninja_row2["Passwort"];
+
+
+	?>
+
+	  
+	  <!--Update der Daten in DB START-->
+	  <?php
+		# Connect to database
+		include ("db.php");
+		if ($_POST['profile'])	{
+		$nachname = $_POST["Nachname"];
+		$vorname = $_POST["Vorname"];
+		$passwort = $_POST["Passwort"];
+		$passwort2 = $_POST["Passwort2"];
+			# Sind Pws gleich OR Nachname leer OR Vorname leer OR Username leer OR Passwort leer -->Gib Meldung zum ausfuellen aller Felder
+			if(($passwort != $passwort2) OR ($nachname == "")OR ($vorname == "")OR ($benutzername == "") OR ($passwort == ""))	{
+			echo "<font color='red'>Eingabefehler. Bitte fuelle alle Eingabefelder aus und achte darauf das die neuen Passwoerter identisch sind.</font> ".header("refresh:4;url=profile.php");    
+			}
+			else	{
+			$passwort = md5($passwort);
+			$query =  sprintf("UPDATE TblPerson Set Nachname = '%s',Vorname = '%s' where idPerson = '".$_SESSION['userid']."'",$nachname, $vorname );
+			$result = mysql_query($query)or(print "<br /><strong><font color='orange'>".mysql_error()."</font></strong>"); 
+				if ($result)	{
+				$query =  sprintf("UPDATE TblZugangsdaten Set Passwort = '%s' where Benutzername = '".$_SESSION['Benutzername']."'",$passwort);
+				$result = mysql_query($query)or(print "<br /><strong><font color='orange'>".mysql_error()."</font></strong>");  
+				if ($result)echo "<font color='green'>Personendaten und Passwort erfolgreich geaendert</font>".header("refresh:2;url=profile.php");       
+				}        
+			}      
+		}
+	$db = null;
+?><!--Update der Daten in DB ENDE-->
+
+
+	  	  
 	  <!--START des FORMULARES-->
-	  <form action="aendern.php" method="post">  <!-- Hier beginnt der Anmeldeblock-->
+	  <form action="profile.php" method="post">  <!-- Hier beginnt der Anmeldeblock-->
 		<p align="center">Dein Vorname:<br>             <!-- Hier wird mit center der Block in die Mitte der Seite gesetzt-->
 		<input type="text" size="24" maxlength="50"
 		name="Vorname" value="<?php echo $vorname; ?>"><br>
@@ -115,6 +200,10 @@ if(isset($_SESSION["Benutzername"]) )
 		<p align="center">Dein Nachname:<br>             <!-- Hier wird mit center der Block in die Mitte der Seite gesetzt-->
 		<input type="text" size="24" maxlength="50"
 		name="Nachname" value="<?php echo $nachname; ?>"><br>
+		
+		<p align="center">Dein Benutzername:<br>             <!-- Hier wird mit center der Block in die Mitte der Seite gesetzt-->
+		<input type="text" size="24" maxlength="50"
+		name="Benutzername" value="<?php echo $benutzername; ?>"><br>
   
 		<p align="center">Dein Passwort:<br>
 		<input type="password" size="24" maxlength="50"
@@ -122,90 +211,17 @@ if(isset($_SESSION["Benutzername"]) )
   
 		Passwort wiederholen:<br>
 		<input type="password" size="24" maxlength="50"
-		name="Passwort2"><br><br><br>
+		name="Passwort2"><br>
   
-		<input type="submit" value="Eintragen!" name="aendern">
+		<input type="submit" value="Datensatz aendern!" name="profile">
 	  </form><!--ENDE des FORMULARES-->
-	  
-      <!--<td align = "right"><a href="logout.php"><font size="4px" color="##999999"><strong>Logout</strong></font></a></td>-->
-	  <!--<td align = "right"><a href="profile.php"><font size="5px" color="#6F0DD1"><strong>View Profile</strong></font></a></td>-->
 	</tr>
 	</table>
 
-<?php
-		#WHERE TblPerson.Vorname like "%'.$_SESSION["Benutzername"].'%"';
-  
-		# Zum debuggen einkommentieren
-		#
-		#echo "<pre>";
-		#var_dump ($_SESSION); echo "</pre>";
-  
-try {   
-    $dbserver   = 'localhost';
-    $dbusername = 'forumuser';
-    $dbpassword = '123456Hh';
-    $dbname     = 'fknforumdb';
-    
-   $pdoDB = new PDO('mysql:host='.$dbserver.';dbname='.$dbname.'', $dbusername, $dbpassword);
-   $pdoDB -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-   
-   $idZugangsdaten = $_SESSION['userid'];
-   #$idZugangsdaten2 = $_SESSION['userid'];
-   #echo "ahhhh <strong>".$_SESSION["userid"]."</strong>, was steht denn drin";
-   
-   # foreach ($conn->query($sql) as $row) {
-   #    print $row['name'] . "\t";
-   #    print $row['color'] . "\t";
-   #    print $row['calories'] . "\n";
-   #}
-   $query_1='SELECT Vorname, Nachname
-			 FROM TblPerson
-			 WHERE TblZugangsdaten_idZugangsdaten LIKE "'.$idZugangsdaten.'"';
-   $query_2='SELECT Benutzername 
-			 FROM TblZugangsdaten
-			 WHERE TblZugangsdaten.idZugangsdaten LIKE "'.$idZugangsdaten.'"';
-			 
-       
-   #echo "Q1 zum debuggen: " . $query_1 . "<br>";
-   #echo "Q2 zum debuggen: " . $query_2 . "<br>";
-       
-   #echo "<h1>Query 1</h1><br>";
-		##foreach( $pdoDB->query($query_1) as $zeile ){
-		foreach ($pdoDB->query($query_1)->fetchAll() as $zeile) {
-		#echo str_pad($zeile['email'], 30,".")." " . $zeile['title'].'<br>';
-		#echo str_pad($zeile['Vorname'], 30,".")." " . $zeile['Nachname'].'<br>';
-		#echo "Vorname & Nachname: " .$zeile['Vorname'] . " \t\t\t\t".$zeile['Nachname'].'<br>';
-		print $zeile['Vorname'] . "\t";
-		print $zeile['Nachname'] . "\n";
-		#print $zeile['Vorname'] . "\n";
-		}   
-		#echo "<br><h1>Query 2</h1><br>";
-		
-		
-		foreach( $pdoDB->query($query_2) as $zeile ){
-		#echo "Benutzername & ID: " .$zeile['Benutzername'] . " \t\t\t\t".$zeile['idZugangsdaten'].'<br><br>';
-		print "Benutzername & ID: " .$zeile[1] .'<br><br>';
-		}
-} 
-	
-catch (PDOException $e) {
-   print "Error!: " . $e->getMessage() . "<br/>";
-   die();
-}
-
-
-
-?>
-
-  <!-- weiter if eingeloggt....
-
-  
-  <?php
-	}
+	<?php
+	} #close fuer schleife session id
 	?>
 </div>
-
-
 
 <p align="justify">
 <!--||| Hier Überschrift und gewünschten Text einfügen. |||-->
@@ -213,12 +229,11 @@ catch (PDOException $e) {
 <!--||| Ende Text |||--></span>
 </p>
 <br>
-<!--</td> -->
+</td>
 <!--||| Ende  Textspalte |||-->
 
 </tr>
 </table><!--||| Ende Tabelle mit Inhalt |||-->
-
 
 <!--||| Anfang Tabelle mit Footer |||-->
 <table border="0" cellspacing="0" cellpadding="15">
@@ -226,13 +241,13 @@ catch (PDOException $e) {
 <td valign="top" width="160" nowrap="nowrap">&nbsp;</td>
 <td align="center" width="400">
 <span class="text">
-&copy; 2013 &middot; ZaNaGeMo &middot; <a href="mailto:mail@tim-bo.de"><img src="img/email.jpg" width="34" height="28" border="0" alt="E-Mail">Adminteam email senden</a>
+No &copy; 2013 &middot; ZaNaGeMo &middot; <a href="mailto:mail@tim-bo.de"><img src="img/email.jpg" width="34" height="28" border="0" alt="E-Mail">Adminteam email senden</a>
 </span>
 </td>
 </tr>
 </table>
-
 <!--||| Ende Tabelle mit Footer |||-->
+
 </div>
 </body>
 </html>

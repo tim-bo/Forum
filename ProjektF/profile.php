@@ -59,6 +59,7 @@ window.onload = scroller;
 <li type="square"><span class="text"><a href="login.html">Login</a></span></li>
 <li type="square"><span class="text"><a href="logout.php">Logout</a></span></li>
 <li type="square"><span class="text"><a href="profile.php">Dein Profil</a></span></li>
+<li type="square"><span class="text"><a href="view.php">Meine Beitraege</a></span></li>
 
 <!--||| Ende Menüpunkte, hier ist Platz für weitere Links oder Grafiken, die aber nicht breiter als 130 Pixel sein dürfen. |||-->
 </ul>
@@ -73,8 +74,9 @@ window.onload = scroller;
 <br>
 
 <p align="justify">
-<!--||| Hier Überschrift und gewünschten Text einfügen. |||-->
-<span class="lesen">{<b>Ninja-Forum -Dein Profil-</b>} Hier kannst du alle Informationen sehen die wir ueber Dich gespeichert haben. Dein Passwort kannst du Dir aus Sicherheitsgruenden hier nicht anzeigen lassen!
+<!--1.Ueberschrift / 1.Text Hauptteil-->
+<span class="lesen">{<b>Ninja-Forum -Dein Profil-</b>} Hier kannst du alle Informationen sehen die wir ueber Dich gespeichert haben und diese aendern.
+Dein Passwort kannst du Dir aus Sicherheitsgruenden nicht anzeigen lassen, es aber jederzeit aendern!
 <!--||| Ende Text |||--></span>
 </p>
 
@@ -85,27 +87,28 @@ window.onload = scroller;
 # Initialisiert die Session - session_start() gibt true or false zurück
 
 #include ("dbpdo.php");
-if (!isset($_GET['pid'])) $_GET['pid'] = '';
+
 ?>
 
 <?php
-
+session_start();
 # declare st
+if (!isset($_GET['pid'])) $_GET['pid'] = '';
 if (!isset($_POST['profile'])) $_POST['profile']='';
-##if(!isset($_SESSION["Benutzername"])) 
-##	{
-##	echo "Please login <a href=\"login.html\">first...</a>";
-##	}
+if(!isset($_SESSION["Benutzername"])) 
+	{
+	echo "Please login <a href=\"login.html\">first...</a>";
+	}
 # If Session gesetzt	
-##if(isset($_SESSION["Benutzername"]) )
-##	{
+if(isset($_SESSION["Benutzername"]) )
+	{
 	?>
 	<table align="center" border="0" cellspacing="0" cellpadding="0" width="100%">
     <tr>
 	<br>
 	  
 	<?php
-	session_start();
+	
 	try {   
     $dbserver   = 'localhost';
     $dbusername = 'forumuser';
@@ -122,15 +125,49 @@ if (!isset($_POST['profile'])) $_POST['profile']='';
 	}
 	
 	
+
    $idZugangsdaten = $_SESSION['userid'];
    $query_1='SELECT Vorname, Nachname
 			 FROM TblPerson
 			 WHERE TblZugangsdaten_idZugangsdaten LIKE "'.$idZugangsdaten.'"';
-   $query_2='SELECT Benutzername 
-			 FROM TblZugangsdaten
-			 WHERE TblZugangsdaten.idZugangsdaten LIKE "'.$idZugangsdaten.'"';
-			 
-      
+   #$query_2='SELECT Benutzername, Passwort 
+		#	 FROM TblZugangsdaten
+		#	 WHERE TblZugangsdaten.idZugangsdaten LIKE "'.$idZugangsdaten.'"';
+   # mit new PDO eine neue Instanz des PHP Data Objects erstellen und an PDOobjDb uebergeben
+    $dbserver   = 'localhost';
+    $dbusername = 'forumuser';
+    $dbpassword = '123456Hh';
+    $dbname     = 'fknforumdb';
+    $pdoDB = new PDO('mysql:host='.$dbserver.';dbname='.$dbname.'', $dbusername, $dbpassword);
+	
+   echo $idZugangsdaten;
+
+   $dbSelectBenNamePw = $pdoDB->prepare("SELECT 'Benutzername', 'Passwort' FROM TblZugangsdaten WHERE TblZugangsdaten.idZugangsdaten = :id");
+   #$dbSelectBenNamePw->bindParam('BN', $VarBN);
+   #$dbSelectBenNamePw->bindParam('Pw', $VarPw);
+   $dbSelectBenNamePw->bindParam('id', $idZugangsdaten);
+   $dbSelectBenNamePw->execute();
+   
+  #$dbSelectBenNamePw->bindColumn('Benutzername',$result2);
+   #echo $result2["Benutzername"];
+   #$benutzername = $result2['0'];
+   //$result = $dbSelectBenNamePw->fetchall();
+   #echo $result['Benutzername'];
+   #$result = $dbSelectBenNamePw->fetchall();
+
+   
+   #$benutzername = $_POST["Benutzername"];
+   echo "\nPDO::errorCode(): ";
+	print $dbSelectBenNamePw->errorCode();
+	print_r($dbSelectBenNamePw->errorInfo());
+	
+   #foreach($dbSelectBenNamePw as $row)	{
+   #echo $row[0].' '.$row[1]."<br/>\n";
+   #$benutzername = $row['Benutzername'];
+   #echo $benutzername;
+   #}
+   
+		#fetchall
 		foreach ($pdoDB->query($query_1)->fetchAll() as $ninja_row)	{
 		#print $ninja_row['Vorname'] . "\t";
 		#print $ninja_row['Nachname'] . "\n";
@@ -139,53 +176,43 @@ if (!isset($_POST['profile'])) $_POST['profile']='';
 		$vorname = $ninja_row["Vorname"];
 		$nachname = $ninja_row["Nachname"];
 		
-		#debug
-		#echo ".$vorname";
-		#echo $nachname;
-		
-		###foreach( $pdoDB->query($query_2) as $ninja_row2 )	{
-		###print "Benutzername & ID: " .$ninja_row2[1] .'<br><br>';
-		###}
-		foreach ($pdoDB->query($query_2)->fetchAll() as $ninja_row2)	{
-		echo "Hallo ";
-		print $ninja_row2['Benutzername'] . "\t";
-		echo "! Folgende Profildaten haben wir ueber Dich in unserer Datenbank hinterlegt:";
-		}
-		#array 2 variable
-		$benutzername = $ninja_row2["Benutzername"];
-		
-		#array to variable
-		###$benutzername = $ninja_row2["Benutzername"];
-		#$passwort = $_POST["Passwort"];
-		#$passwort2 = $_POST["Passwort2"];
-	##} #if Session gesetzt ENDE
+		#foreach ($pdoDB->query($query_2)->fetchAll() as $ninja_row2)	{
+		#}
+		#$benutzername = $ninja_row2["Benutzername"];
+		#$passwort = $ninja_row2["Passwort"];
+
+
 	?>
-	  
+
 	  
 	  <!--Update der Daten in DB START-->
 	  <?php
+		# Connect to database
+		include ("db.php");
 		if ($_POST['profile'])	{
 		$nachname = $_POST["Nachname"];
 		$vorname = $_POST["Vorname"];
 		$passwort = $_POST["Passwort"];
 		$passwort2 = $_POST["Passwort2"];
 			# Sind Pws gleich OR Nachname leer OR Vorname leer OR Username leer OR Passwort leer -->Gib Meldung zum ausfuellen aller Felder
-			if(($passwort != $passwort2) OR ($nachname == "")OR ($vorname == "")OR ($username == "") OR ($passwort == ""))	{
-			echo "<font color='red'>Eingabefehler. Bitte alle Felder korekt ausfüllen.</font> ".header("refresh:2;url=profile.php");    
+			if(($passwort != $passwort2) OR ($nachname == "")OR ($vorname == "")OR ($benutzername == "") OR ($passwort == ""))	{
+			echo "<font color='red'>Eingabefehler. Bitte fuelle alle Eingabefelder aus und achte darauf das die neuen Passwoerter identisch sind.</font> ".header("refresh:4;url=profile.php");    
 			}
 			else	{
 			$passwort = md5($passwort);
-			$query =  sprintf("UPDATE Person Set Nachname = '%s',Vorname = '%s' where idPerson = '".$_SESSION['userid']."'",$nachname, $vorname );
-			$result = mysql_query($query)or(print "<br /><strong><font color='red'>".mysql_error()."</font></strong>"); 
+			$query =  sprintf("UPDATE TblPerson Set Nachname = '%s',Vorname = '%s' where idPerson = '".$_SESSION['userid']."'",$nachname, $vorname );
+			$result = mysql_query($query)or(print "<br /><strong><font color='orange'>".mysql_error()."</font></strong>"); 
 				if ($result)	{
-				$query =  sprintf("UPDATE zugangsdaten Set Passwort = '%s' where Benutzername = '".$_SESSION['Benutzername']."'",$passwort);
-				$result = mysql_query($query)or(print "<br /><strong><font color='red'>".mysql_error()."</font></strong>");  
-				if ($result)echo "<font color='green'>Personendaten und Passwort erfolgreich geändert</font>".header("refresh:2;url=profile.php");       
+				$query =  sprintf("UPDATE TblZugangsdaten Set Passwort = '%s' where Benutzername = '".$_SESSION['Benutzername']."'",$passwort);
+				$result = mysql_query($query)or(print "<br /><strong><font color='orange'>".mysql_error()."</font></strong>");  
+				if ($result)echo "<font color='green'>Personendaten und Passwort erfolgreich geaendert</font>".header("refresh:2;url=profile.php");       
 				}        
 			}      
 		}
 	$db = null;
-?><!--Update der Daten in DB START-->
+?><!--Update der Daten in DB ENDE-->
+
+
 	  	  
 	  <!--START des FORMULARES-->
 	  <form action="profile.php" method="post">  <!-- Hier beginnt der Anmeldeblock-->
@@ -207,13 +234,16 @@ if (!isset($_POST['profile'])) $_POST['profile']='';
   
 		Passwort wiederholen:<br>
 		<input type="password" size="24" maxlength="50"
-		name="Passwort2"><br><br><br>
+		name="Passwort2"><br>
   
 		<input type="submit" value="Datensatz aendern!" name="profile">
 	  </form><!--ENDE des FORMULARES-->
 	</tr>
 	</table>
-	
+
+	<?php
+	} #close fuer schleife session id
+	?>
 </div>
 
 <p align="justify">
@@ -234,7 +264,7 @@ if (!isset($_POST['profile'])) $_POST['profile']='';
 <td valign="top" width="160" nowrap="nowrap">&nbsp;</td>
 <td align="center" width="400">
 <span class="text">
-&copy; 2013 &middot; ZaNaGeMo &middot; <a href="mailto:mail@tim-bo.de"><img src="img/email.jpg" width="34" height="28" border="0" alt="E-Mail">Adminteam email senden</a>
+No &copy; 2013 &middot; ZaNaGeMo &middot; <a href="mailto:mail@tim-bo.de"><img src="img/email.jpg" width="34" height="28" border="0" alt="E-Mail">Adminteam email senden</a>
 </span>
 </td>
 </tr>

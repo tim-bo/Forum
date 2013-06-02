@@ -60,6 +60,7 @@ window.onload = scroller;
 <li type="square"><span class="text"><a href="login.html">Login</a></span></li>
 <li type="square"><span class="text"><a href="logout.php">Logout</a></span></li>
 <li type="square"><span class="text"><a href="profile.php">Dein Profil</a></span></li>
+<li type="square"><span class="text"><a href="view.php">Meine Beitraege</a></span></li>
 
 <!--||| Ende Menüpunkte, hier ist Platz für weitere Links oder Grafiken, die aber nicht breiter als 130 Pixel sein dürfen. |||-->
 </ul>
@@ -76,7 +77,7 @@ window.onload = scroller;
 
 
 <p align="justify">
-<!--||| Hier Überschrift und gewünschten Text einfügen. |||-->
+<!--1.Ueberschrift / 1.Text Hauptteil-->
 <span class="lesen">{<b>Ninja-Forum -Create a Post-</b>} Hier kannst du neue Threads erstellen und Beitraege posten.
 <!--||| Ende Text |||--></span>
 </p>
