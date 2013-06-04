@@ -1,10 +1,14 @@
 <?php
-session_start ();
-session_unset ();
+
+# Session initialisieren
+session_start();
+# Session leeren
+session_unset();
+# Session schliessen
 session_destroy();
 echo "Arbeite langsam, aber zukunftsorientiert... ;-)";
 header("refresh:3;url=forum.php");
-$db = null;
-                                                                                                                                                                                                                 
+# Conn beenden auch moeglich mit unset($dblink)
+$dblink = null;
 ?>
                                                                                                                                
